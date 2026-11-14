@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lixeirinha Inteligente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rosa-claro: #fde7ee;
+            --rosa: #f4a6bd;
+            --rosa-forte: #e0577f;
+            --verde-claro: #e3efd9;
+            --verde: #8fb98b;
+            --verde-escuro: #4f7a54;
+            --creme: #fffaf3;
+            --marrom: #6b4f4f;
+        }
+
+        body {
+            font-family: "Quicksand", sans-serif;
+            color: var(--marrom);
+            /* toalha de piquenique xadrez */
+            background-color: var(--rosa-claro);
+            background-image:
+                linear-gradient(90deg, rgba(244, 166, 189, .45) 50%, transparent 50%),
+                linear-gradient(rgba(244, 166, 189, .45) 50%, transparent 50%);
+            background-size: 44px 44px;
+        }
+
+        .titulo {
+            font-family: "Pacifico", cursive;
+            color: var(--verde-escuro);
+            text-shadow: 2px 2px 0 var(--creme);
+        }
+
+        /* cartões com cara de bordado */
+        .card {
+            background: var(--creme);
+            border: 3px dashed var(--verde);
+            border-radius: 22px;
+            box-shadow: 0 6px 0 rgba(143, 185, 139, .35);
+        }
+        .card-rosa { border-color: var(--rosa); box-shadow: 0 6px 0 rgba(244, 166, 189, .45); }
+
+        .subtitulo { color: var(--verde-escuro); font-weight: 700; }
+
+        /* selo de status */
+        .badge { font-size: .9rem; border-radius: 999px; padding: .55em 1em; font-weight: 700; }
+        .badge.bg-secondary { background-color: #cdb9b9 !important; }
+        .badge.bg-success   { background-color: var(--verde) !important; }
+        .badge.bg-warning   { background-color: #f7d6a0 !important; color: var(--marrom) !important; }
+        .badge.bg-danger    { background-color: var(--rosa-forte) !important; }
+
+        /* selo da ESP32 pisca quando chega leitura nova */
+        @keyframes pulsar {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(143, 185, 139, .45); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(143, 185, 139, 0); }
+        }
+        .badge.pulsar { animation: pulsar .7s ease; }
+
+        /* lixeira / cestinha */
+        .lixeira-tampa {
+            width: 170px;
+            height: 14px;
+            margin: 0 auto -1px;
+            background: var(--verde-escuro);
+            border-radius: 8px 8px 0 0;
+        }
+        .lixeira {
+            position: relative;
+            width: 140px;
+            height: 200px;
+            margin: 0 auto;
+            border: 4px solid var(--verde-escuro);
+            border-top: none;
+            border-radius: 0 0 22px 22px;
+            background: #fff;
+            overflow: hidden;
+        }
+        .lixeira-nivel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            transition: height 0.8s ease, background-color 0.8s ease;
+        }
+        .lixeira-nivel.normal { background: var(--verde); }
+        .lixeira-nivel.metade { background: var(--rosa); }
+        .lixeira-nivel.cheio  { background: var(--rosa-forte); }
+
+        .estado-texto { font-family: "Pacifico", cursive; font-size: 2.2rem; }
+        .txt-normal { color: var(--verde-escuro); }
+        .txt-metade { color: #d9739a; }
+        .txt-cheio  { color: var(--rosa-forte); }
+        .txt-vazio  { color: #b8a6a6; }
+
+        .contador { font-size: 1.9rem; font-weight: 700; }
+
+        /* tabela */
+        .table { --bs-table-bg: transparent; --bs-table-striped-bg: var(--rosa-claro); color: var(--marrom); }
+        .table thead th { color: var(--verde-escuro); border-bottom: 2px dashed var(--verde); }
+
+        /* botões */
+        .btn-verde { background: var(--verde); border: none; color: #fff; font-weight: 700; border-radius: 999px; }
+        .btn-verde:hover { background: var(--verde-escuro); color: #fff; }
+        .btn-rosa  { background: var(--rosa); border: none; color: #fff; font-weight: 700; border-radius: 999px; }
+        .btn-rosa:hover  { background: #e98aa8; color: #fff; }
+        .btn-forte { background: var(--rosa-forte); border: none; color: #fff; font-weight: 700; border-radius: 999px; }
+        .btn-forte:hover { background: #c94469; color: #fff; }
+        .btn-contorno { background: transparent; border: 2px solid var(--verde); color: var(--verde-escuro); font-weight: 700; border-radius: 999px; }
+        .btn-contorno:hover { background: var(--verde-claro); color: var(--verde-escuro); }
+        .btn-contorno-rosa { background: transparent; border: 2px solid var(--rosa); color: #c94469; font-weight: 700; border-radius: 999px; }
+        .btn-contorno-rosa:hover { background: var(--rosa-claro); color: #c94469; }
+
+        code { color: var(--rosa-forte); background: var(--rosa-claro); padding: 1px 6px; border-radius: 6px; word-break: break-all; }
+        .rodape { text-align: center; color: var(--verde-escuro); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container my-4" style="max-width: 920px;">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <h1 class="titulo h2 mb-0">🌿 Lixeirinha Inteligente 🌸</h1>
+            <div class="d-flex flex-wrap gap-2">
+                <span id="dispositivo" class="badge bg-secondary">ESP32: sem informação</span>
+                <span id="status" class="badge bg-secondary">Desconectado</span>
+            </div>
+        </div>
+
+        <!-- Aviso de problema de conexão (preenchido pelo app.js) -->
+        <div id="diagnostico" class="small mb-3"
+             style="display:none; background: var(--creme); border: 3px dashed var(--rosa-forte); border-radius: 16px; padding: .6rem 1rem; color: var(--rosa-forte); font-weight: 700;"></div>
+
+        <div class="row g-4">
+            <!-- Estado atual -->
+            <div class="col-md-5">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h2 class="h6 subtitulo mb-4">🧺 Como está a lixeirinha?</h2>
+
+                        <div class="lixeira-tampa"></div>
+                        <div class="lixeira">
+                            <div id="nivel" class="lixeira-nivel"></div>
+                        </div>
+
+                        <div id="estado" class="estado-texto mt-4 txt-vazio">--</div>
+                        <div class="fw-bold mb-1">📏 Ocupação: <span id="ocupacao">--</span></div>
+                        <div class="small">📐 Distância medida: <span id="distancia">--</span></div>
+                        <div class="small">
+                            🕐 Última atualização: <span id="ultimaAtualizacao">nenhuma</span>
+                        </div>
+                        <div class="small">
+                            💌 Mensagem: <code id="mensagem">nenhuma</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contadores e histórico -->
+            <div class="col-md-7">
+                <div class="row g-3 mb-4">
+                    <div class="col-4">
+                        <div class="card text-center">
+                            <div class="card-body py-3">
+                                <div class="small">🌱 Normal</div>
+                                <div id="contNormal" class="contador txt-normal">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card card-rosa text-center">
+                            <div class="card-body py-3">
+                                <div class="small">🌷 Metade</div>
+                                <div id="contMetade" class="contador txt-metade">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card card-rosa text-center">
+                            <div class="card-body py-3">
+                                <div class="small">🍓 Cheio</div>
+                                <div id="contCheio" class="contador txt-cheio">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-rosa">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                            <h2 class="h6 subtitulo mb-0">📖 Caderninho de leituras</h2>
+                            <div class="d-flex gap-2">
+                                <button id="btnCsv" class="btn btn-sm btn-contorno">Exportar CSV</button>
+                                <button id="btnLimpar" class="btn btn-sm btn-contorno-rosa">Limpar</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="max-height: 260px; overflow-y: auto;">
+                            <table class="table table-sm table-striped mb-0">
+                                <thead>
+                                    <tr><th>Data/hora</th><th>Estado</th><th>Ocupação</th><th>Origem</th></tr>
+                                </thead>
+                                <tbody id="historico">
+                                    <tr><td colspan="4">Sem leituras ainda</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- Previsão de coleta (ML) -->
+        <div class="card card-rosa mt-4">
+            <div class="card-body">
+                <h2 class="h6 subtitulo mb-2">🔮 Previsão de coleta</h2>
+                <div id="prevPrincipal" class="estado-texto txt-metade" style="font-size:1.6rem">--</div>
+                <div class="small" id="prevDetalhe">Carregando previsão...</div>
+            </div>
+        </div>
+
+        <!-- Modo teste -->
+        <div class="card mt-4">
+            <div class="card-body d-flex flex-wrap align-items-center gap-2">
+                <span class="small me-2">🐝 Modo teste (só muda a tela, não usa a ESP32):</span>
+                <button class="btn btn-sm btn-verde" data-teste="normal">Normal</button>
+                <button class="btn btn-sm btn-rosa" data-teste="metade">Metade</button>
+                <button class="btn btn-sm btn-forte" data-teste="cheio">Cheio</button>
+            </div>
+
+        </div>
+
+        <p class="rodape mt-4 mb-0">🌼 feito com carinho por Gabrieli e Melissa 🌼</p>
+    </div>
+
+    <!-- Socket.IO é entregue pelo próprio server.js (não depende de internet) -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

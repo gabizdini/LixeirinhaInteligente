@@ -1,0 +1,17 @@
+{
+  "name": "pinkbin-dashboard",
+  "version": "1.0.0",
+  "description": "Backend do PinkBin: recebe os dados da ESP32 via MQTT e envia ao dashboard em tempo real (Socket.IO)",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "simular": "node simular-esp32.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mqtt": "^5.10.3",
+    "socket.io": "^4.8.1"
+  }
+}

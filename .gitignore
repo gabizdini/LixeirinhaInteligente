@@ -1,0 +1,7 @@
+# Configurações e senhas (nunca enviar ao GitHub)
+.env
+esp32/pinkbin_esp32/secrets.h
+
+# Dependências e arquivos gerados
+node_modules/
+__pycache__/

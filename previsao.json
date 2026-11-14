@@ -1,0 +1,13 @@
+{
+  "pronto": true,
+  "gerado_em": "2026-11-14T20:05:00",
+  "ultima_leitura": "2026-11-12T10:53",
+  "ocupacao_atual": 0.0,
+  "horario_metade": null,
+  "horario_cheia": null,
+  "taxa_media_por_hora": 0.0,
+  "amostras": 13,
+  "ciclos": 1,
+  "modelo": "Taxa média",
+  "confianca": "baixa (poucos dados)"
+}
