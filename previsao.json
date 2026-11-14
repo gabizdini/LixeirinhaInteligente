@@ -1,13 +1,13 @@
 {
   "pronto": true,
-  "gerado_em": "2026-11-14T20:05:00",
-  "ultima_leitura": "2026-11-12T10:53",
+  "gerado_em": "2026-11-14T20:56:10",
+  "ultima_leitura": "2026-11-14T20:56",
   "ocupacao_atual": 0.0,
-  "horario_metade": null,
-  "horario_cheia": null,
-  "taxa_media_por_hora": 0.0,
-  "amostras": 13,
-  "ciclos": 1,
+  "horario_metade": "2026-11-14T21:16",
+  "horario_cheia": "2026-11-14T21:28",
+  "taxa_media_por_hora": 152.75,
+  "amostras": 30,
+  "ciclos": 4,
   "modelo": "Taxa média",
   "confianca": "baixa (poucos dados)"
 }

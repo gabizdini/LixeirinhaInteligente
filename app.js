@@ -47,7 +47,7 @@ function mostrarLeitura(dados, textoBruto, dataHora) {
     document.getElementById("ultimaAtualizacao").innerText = new Date(dataHora).toLocaleString("pt-BR");
     if (textoBruto != null) document.getElementById("mensagem").innerText = textoBruto;
     document.getElementById("ocupacao").innerText =
-        dados.ocupacao != null ? dados.ocupacao.toFixed(0) + "%" : "--";
+        dados.ocupacao != null ? Math.floor(dados.ocupacao) + "%" : "--"; // floor: 79,6% mostra 79% (ainda Metade)
     document.getElementById("distancia").innerText =
         dados.distancia != null ? dados.distancia.toFixed(1) + " cm" : "--";
 }
@@ -82,7 +82,7 @@ function desenharHistorico() {
         tr.innerHTML =
             "<td>" + new Date(item.data).toLocaleString("pt-BR") + "</td>" +
             '<td class="fw-bold ' + info.texto + '">' + info.rotulo + "</td>" +
-            "<td>" + (item.ocupacao != null ? item.ocupacao.toFixed(0) + "%" : "-") + "</td>" +
+            "<td>" + (item.ocupacao != null ? Math.floor(item.ocupacao) + "%" : "-") + "</td>" +
             "<td>" + item.origem + "</td>";
         corpo.appendChild(tr);
     });

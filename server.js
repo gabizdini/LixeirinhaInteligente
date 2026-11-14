@@ -9,6 +9,7 @@
 // =====================================================
 require("dotenv").config();
 
+const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const express = require("express");
@@ -195,6 +196,28 @@ setInterval(() => {
         enviarStatus();
     }
 }, 2000);
+
+// ---------- Previsão também pelo arquivo previsao.json ----------
+// Assim a previsão aparece mesmo que a mensagem MQTT do coletor.py
+// tenha sido perdida (ex.: servidor iniciado depois, broker reiniciado).
+const ARQUIVO_PREVISAO = path.join(__dirname, "previsao.json");
+
+function carregarPrevisaoDoArquivo() {
+    try {
+        const p = JSON.parse(fs.readFileSync(ARQUIVO_PREVISAO, "utf-8"));
+        // só usa o arquivo se ele for mais novo que a previsão que já temos
+        if (!ultimaPrevisao || (p.gerado_em || "") > (ultimaPrevisao.gerado_em || "")) {
+            ultimaPrevisao = p;
+            io.emit("previsao", ultimaPrevisao);
+            console.log("[Previsão] Carregada de previsao.json (gerada em " + p.gerado_em + ")");
+        }
+    } catch (e) {
+        // arquivo ainda não existe ou está sendo escrito: tenta de novo depois
+    }
+}
+
+carregarPrevisaoDoArquivo();
+fs.watchFile(ARQUIVO_PREVISAO, { interval: 5000 }, carregarPrevisaoDoArquivo);
 
 // ---------- Quando um navegador abre o dashboard ----------
 io.on("connection", (socket) => {
